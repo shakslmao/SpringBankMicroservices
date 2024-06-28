@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.security.auth.Subject;
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,16 +24,34 @@ import java.util.List;
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 public class User implements UserDetails, Principal {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Integer id;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     private String firstName;
     private String lastName;
-    @Column(unique = true) private String email;
+
+    @Column(unique = true)
+    private String email;
+
     private String password;
     private String phoneNumber;
-    @OneToOne(cascade = CascadeType.ALL) @JoinColumn(name = "address_id") private UserAddress address;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id")
+    private UserAddress address;
+
     private Boolean emailVerified;
     public Boolean accountLocked;
     public Boolean enabled;
+
+    @CreatedDate
+    @Column(insertable = false, updatable = false)
+    private LocalDate createdAt;
+
+    @Column(nullable = false)
+    private Integer userPin;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -40,41 +60,44 @@ public class User implements UserDetails, Principal {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return !accountLocked;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return enabled;
     }
 
     @Override
     public String getName() {
-        return "";
+        return firstName;
     }
 
-    @Override
-    public boolean implies(Subject subject) {
-        return Principal.super.implies(subject);
+    public Integer getPin() {
+        return userPin;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 }
