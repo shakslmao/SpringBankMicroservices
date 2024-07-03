@@ -58,7 +58,7 @@ public class User implements UserDetails, Principal {
 
     // User PIN, cannot be null
     @Column(nullable = false)
-    private Integer userPin;
+    private String userPin;
 
     // Many-to-many relationship with roles, eagerly fetched
     @ManyToMany(fetch = FetchType.EAGER)
@@ -149,14 +149,6 @@ public class User implements UserDetails, Principal {
         return firstName;
     }
 
-    /**
-     * Gets the user's PIN.
-     *
-     * @return The user's PIN
-     */
-    public Integer getPin() {
-        return userPin;
-    }
 
     /**
      * Gets the full name of the user.
