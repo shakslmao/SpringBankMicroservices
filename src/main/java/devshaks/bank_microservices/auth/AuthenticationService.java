@@ -1,4 +1,6 @@
 package devshaks.bank_microservices.auth;
+import devshaks.bank_microservices.email.EmailService;
+import devshaks.bank_microservices.email.EmailTemplateName;
 import devshaks.bank_microservices.roles.ERoles;
 import devshaks.bank_microservices.roles.RoleRepository;
 import devshaks.bank_microservices.user.User;
@@ -17,6 +19,10 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+
+    private String activationURL;
 
     public void register(RegistrationRequest registrationRequest) throws MessagingException {
         var userRole = roleRepository.findByName(ERoles.ROLE_USER)
@@ -39,6 +45,19 @@ public class AuthenticationService {
     }
 
     private void sendValidationEmail(User user) throws MessagingException {
+        var newToken = generateAndSaveActivationToken(user);
+        emailService.sendValidationEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.ACTIVATE_USER_ACCOUNT,
+                activationURL,
+                newToken,
+                "Activate Your Account");
+
+    }
+
+    private String generateAndSaveActivationToken(User user) {
+        return "";
     }
 
 

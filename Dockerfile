@@ -20,7 +20,7 @@ FROM openjdk:17-jdk-slim
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the packaged jar file into the container and rename it
+# Copy the packaged jar file into the container
 COPY --from=build /app/target/bank-microservices-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Expose the port your application runs on

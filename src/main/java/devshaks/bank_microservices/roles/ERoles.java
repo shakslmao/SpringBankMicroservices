@@ -1,7 +1,5 @@
 package devshaks.bank_microservices.roles;
 
-
-
 public enum ERoles {
     ROLE_USER,
     ROLE_TELLER,
