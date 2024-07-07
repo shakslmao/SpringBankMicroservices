@@ -1,2 +1,12 @@
-package devshaks.bank_microservices.auth;public class AuthenticationResponse {
+package devshaks.bank_microservices.auth;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Builder
+public class AuthenticationResponse {
+    private String token;
 }

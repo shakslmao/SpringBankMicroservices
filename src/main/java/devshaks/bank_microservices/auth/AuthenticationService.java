@@ -1,5 +1,6 @@
 package devshaks.bank_microservices.auth;
 
+import devshaks.bank_microservices.security.JwtService;
 import devshaks.bank_microservices.email.EmailService;
 import devshaks.bank_microservices.email.EmailTemplateName;
 import devshaks.bank_microservices.roles.ERoles;
@@ -10,11 +11,15 @@ import devshaks.bank_microservices.user.User;
 import devshaks.bank_microservices.user.UserRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,7 +33,10 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
+    @Value("${application.mailing.frontend.activation-url}")
     private String activationURL;
 
     /**
@@ -119,4 +127,25 @@ public class AuthenticationService {
 
         return tokenCodeBuilder.toString();
     }
+
+    public AuthenticationResponse authenticationResponse(AuthenticationRequest request) {
+        String authCredentials;
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            authCredentials = request.getPassword();
+        } else if (request.getPin() != null && !request.getPin().isEmpty()) {
+            authCredentials = request.getPin();
+        } else {
+            throw new IllegalArgumentException("Either Pin or Password must be provided");
+        }
+
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), authCredentials));
+
+        var claims = new HashMap<String, Object>();
+        var user = ((User) auth.getPrincipal());
+        claims.put("fullName", user.getFullName());
+        var jwtToken = jwtService.generateToken(claims, user);
+        return AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
 }
