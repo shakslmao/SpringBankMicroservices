@@ -128,7 +128,15 @@ public class AuthenticationService {
         return tokenCodeBuilder.toString();
     }
 
+    /**
+     * Authenticates the user based on the provided authentication request and generates a JWT token.
+     *
+     * @param request The authentication request containing either a password or a PIN
+     * @return An AuthenticationResponse containing the generated JWT token
+     * @throws IllegalArgumentException If neither a password nor a PIN is provided in the request
+     */
     public AuthenticationResponse authenticationResponse(AuthenticationRequest request) {
+        // Determine the authentication credentials from the request
         String authCredentials;
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             authCredentials = request.getPassword();
@@ -138,13 +146,19 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Either Pin or Password must be provided");
         }
 
+        // Authenticate the user with the provided email and credentials
         var auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), authCredentials));
 
+        // Prepare the claims to be included in the JWT token
         var claims = new HashMap<String, Object>();
         var user = ((User) auth.getPrincipal());
         claims.put("fullName", user.getFullName());
+
+        // Generate the JWT token with the claims and authenticated user
         var jwtToken = jwtService.generateToken(claims, user);
+
+        // Return the authentication response containing the JWT token
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
