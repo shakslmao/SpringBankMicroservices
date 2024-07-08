@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +19,7 @@ import java.util.function.Function;
 /**
  * Service class for managing JSON Web Tokens (JWT).
  */
+@Service
 public class JwtService {
 
     // JWT expiration time, injected from application properties
