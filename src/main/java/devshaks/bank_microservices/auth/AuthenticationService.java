@@ -10,10 +10,12 @@ import devshaks.bank_microservices.user.TokenRepository;
 import devshaks.bank_microservices.user.User;
 import devshaks.bank_microservices.user.UserRepository;
 import jakarta.mail.MessagingException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -160,6 +162,38 @@ public class AuthenticationService {
 
         // Return the authentication response containing the JWT token
         return AuthenticationResponse.builder().token(jwtToken).build();
+    }
+
+    /**
+     * Activates a user account using the provided token.
+     *
+     * @param token the activation token
+     * @throws MessagingException if there is an error sending the validation email
+     */
+    @Transactional
+    public void activateAccount(String token) throws MessagingException {
+        // Retrieve the token from the repository or throw an exception if it doesn't exist
+        Token savedUserToken = tokenRepository.findByToken(token)
+            .orElseThrow(() -> new RuntimeException("Invalid Token"));
+
+        // Check if the token has expired
+        if (LocalDateTime.now().isAfter(savedUserToken.getExpiredTokenAt())) {
+            // If the token is expired, send a new validation email and throw an exception
+            sendValidationEmail(savedUserToken.getUser());
+            throw new RuntimeException("Activation Token has Expired! A new token has been sent to your email");
+        }
+
+        // Retrieve the user associated with the token or throw an exception if the user is not found
+        var user = userRepository.findById(savedUserToken.getUser().getId())
+            .orElseThrow(() -> new UsernameNotFoundException("User not Found"));
+
+        // Enable the user account
+        user.setEnabled(true);
+        userRepository.save(user);
+
+        // Mark the token as validated by setting the validation timestamp
+        savedUserToken.setValidatedTokenAt(LocalDateTime.now());
+        tokenRepository.save(savedUserToken);
     }
 
 }
