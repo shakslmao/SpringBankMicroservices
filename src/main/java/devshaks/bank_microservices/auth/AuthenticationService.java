@@ -59,7 +59,6 @@ public class AuthenticationService {
                 .email(registrationRequest.getEmail())
                 .password(passwordEncoder.encode(registrationRequest.getPassword()))
                 .userPin(passwordEncoder.encode(registrationRequest.getUserPin()))
-                .address(registrationRequest.getAddress())
                 .accountLocked(false)
                 .enabled(false)
                 .roles(List.of(userRole))

@@ -1,7 +1,5 @@
 package devshaks.bank_microservices.auth;
 
-import devshaks.bank_microservices.user.UserAddress;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -45,8 +43,4 @@ public class RegistrationRequest {
     @NotBlank(message = "Pin is required")
     @Size(min = 4, max = 4, message = "Pin must be 4 digits")
     private String userPin;
-
-    // Address of the user, must be valid
-    @Valid
-    private UserAddress address;
 }

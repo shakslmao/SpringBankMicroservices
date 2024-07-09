@@ -41,12 +41,6 @@ public class User implements UserDetails, Principal {
 
     private String password;
     private String phoneNumber;
-
-    // One-to-one relationship with UserAddress, with cascade type ALL
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id")
-    private UserAddress address;
-
     private Boolean emailVerified;
     public Boolean accountLocked;
     public Boolean enabled;
